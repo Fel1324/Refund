@@ -136,6 +136,8 @@ function expenseRemove(id){
   const newList = list.filter((item) => item.id !== id);
   list = newList;
   localStorage.setItem(EXPENSE_ITEM, JSON.stringify(list));
+
+  updateTotals();
 }
 
 function formClear(){
