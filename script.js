@@ -7,6 +7,19 @@ const expenseList = document.querySelector("ul");
 const expensesTotal = document.querySelector("aside > header > h2");
 const expensesQuantity = document.querySelector("aside > header > p > span");
 
+let list = [];
+const EXPENSE_ITEM = "expenseList";
+
+document.addEventListener("DOMContentLoaded", () => {
+  const storageList = JSON.parse(localStorage.getItem(EXPENSE_ITEM));
+
+  if(storageList){
+    storageList.forEach(item => {
+      expenseAdd(item);
+    });
+  }
+});
+
 amount.oninput = () => {
   let value = amount.value.replace(/\D+/g, "");
   value = Number(value) / 100;
@@ -42,6 +55,7 @@ function expenseAdd(newExpense){
   try {
     const expenseItem = document.createElement("li");
     expenseItem.classList.add("expense");
+    expenseItem.id = newExpense.id;
 
     const expenseIcon = document.createElement("img");
     expenseIcon.setAttribute("src", `./img/${newExpense.category_id}.svg`);
@@ -66,11 +80,14 @@ function expenseAdd(newExpense){
     removeIcon.classList.add("remove-icon");
     removeIcon.setAttribute("src", "./img/remove.svg");
     removeIcon.setAttribute("alt", "Remover");
+    removeIcon.onclick = () => expenseRemove(newExpense.id);
 
     expenseItem.append(expenseIcon, expenseInfo, expenseAmount, removeIcon);
     expenseList.append(expenseItem);
 
     updateTotals();
+    list.push(newExpense);
+    localStorage.setItem(EXPENSE_ITEM, JSON.stringify(list));
 
   } catch (error) {
     alert("Não foi possível atualizar a lista de despesas.");
@@ -113,15 +130,13 @@ function updateTotals(){
   }
 }
 
-expenseList.addEventListener("click", (event) => {
-  if(event.target.classList.contains("remove-icon")){
-    // Obtém o li pai do elemento clicado.
-    const item = event.target.closest(".expense");
-    item.remove();
-  }
+function expenseRemove(id){
+  document.getElementById(id).remove();
 
-  updateTotals();
-});
+  const newList = list.filter((item) => item.id !== id);
+  list = newList;
+  localStorage.setItem(EXPENSE_ITEM, JSON.stringify(list));
+}
 
 function formClear(){
   expense.value = "";
